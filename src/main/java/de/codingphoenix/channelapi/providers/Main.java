@@ -1,10 +1,9 @@
-package de.codingphoenix.providers;
+package de.codingphoenix.channelapi.providers;
 
-import de.codingphoenix.providers.client.ClientChannelProvider;
-import de.codingphoenix.providers.event.Event;
-import de.codingphoenix.providers.event.EventListener;
-import de.codingphoenix.providers.event.channel.ChannelReceiveMessageEvent;
-import de.codingphoenix.providers.server.ServerChannelProvider;
+import de.codingphoenix.channelapi.providers.event.channel.ChannelReceiveMessageEvent;
+import de.codingphoenix.channelapi.providers.server.ServerChannelProvider;
+import de.codingphoenix.channelapi.providers.client.ClientChannelProvider;
+import de.codingphoenix.channelapi.providers.event.EventListener;
 import org.json.JSONObject;
 
 import java.io.IOException;

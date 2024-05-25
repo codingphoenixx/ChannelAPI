@@ -1,8 +1,8 @@
-package de.codingphoenix.providers.server;
+package de.codingphoenix.channelapi.providers.server;
 
-import de.codingphoenix.providers.event.channel.ServerClientConnectEvent;
-import de.codingphoenix.providers.handler.SocketClientHandler;
-import de.codingphoenix.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.channel.ServerClientConnectEvent;
+import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -11,7 +11,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,6 +20,7 @@ import java.util.concurrent.Executors;
 public class ServerChannelProvider {
     private final ServerSocketChannel serverSocketChannel;
     private final EventHandler eventHandler;
+    private boolean connected = false;
 
     private final HashMap<UUID, SocketClientHandler> providers = new HashMap<>();
 
@@ -35,6 +35,7 @@ public class ServerChannelProvider {
         serverSocketChannel.socket().bind(new InetSocketAddress(port));
         executor = Executors.newCachedThreadPool();
 
+        connected = true;
         while (true) {
             SocketChannel socketChannel = serverSocketChannel.accept();
             System.out.println("Client connected: " + socketChannel.getRemoteAddress());
@@ -57,6 +58,7 @@ public class ServerChannelProvider {
 
     public void disconnect() {
         try {
+            connected = false;
             for (SocketClientHandler provider : providers.values()) {
                 provider.socketChannel().close();
             }

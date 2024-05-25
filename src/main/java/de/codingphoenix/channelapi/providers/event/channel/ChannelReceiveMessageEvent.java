@@ -1,6 +1,6 @@
-package de.codingphoenix.providers.event.channel;
+package de.codingphoenix.channelapi.providers.event.channel;
 
-import de.codingphoenix.providers.handler.SocketClientHandler;
+import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 

@@ -1,4 +1,4 @@
-package de.codingphoenix.providers.event;
+package de.codingphoenix.channelapi.providers.event;
 
 public interface EventListener<T extends Event> {
     void handleEvent(T event);

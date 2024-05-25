@@ -1,6 +1,6 @@
-package de.codingphoenix.providers.event.channel;
+package de.codingphoenix.channelapi.providers.event.channel;
 
-import de.codingphoenix.providers.event.Event;
+import de.codingphoenix.channelapi.providers.event.Event;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.experimental.Accessors;

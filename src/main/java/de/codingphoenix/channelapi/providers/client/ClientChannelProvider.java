@@ -1,7 +1,9 @@
-package de.codingphoenix.providers.client;
+package de.codingphoenix.channelapi.providers.client;
 
-import de.codingphoenix.providers.handler.SocketClientHandler;
-import de.codingphoenix.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
+import de.codingphoenix.channelapi.providers.handler.DisconnectListener;
+import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -13,26 +15,36 @@ import java.util.UUID;
 
 @Getter
 @Accessors(fluent = true)
-public class ClientChannelProvider{
+public class ClientChannelProvider {
+    private boolean connected = false;
     private final SocketChannel socketChannel;
     private final EventHandler eventHandler;
-
+    private final DisconnectListener disconnectListener;
     private SocketClientHandler socketClientHandler;
 
     public ClientChannelProvider() throws IOException {
         socketChannel = SocketChannel.open();
         eventHandler = new EventHandler();
+        disconnectListener = new DisconnectListener(socketChannel, eventHandler);
         Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
     }
 
     public void connect(String hostname, int port) throws IOException {
         socketChannel.connect(new InetSocketAddress(hostname, port));
-        socketClientHandler = new SocketClientHandler(new UUID(0,0), eventHandler, socketChannel);
+        socketClientHandler = new SocketClientHandler(new UUID(0, 0), eventHandler, socketChannel);
+
+
         socketClientHandler.run();
+        disconnectListener.add(() -> {
+            eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel));
+            disconnect();
+        });
+        connected = true;
     }
 
     public void disconnect() {
         try {
+            connected = false;
             socketChannel.close();
             socketClientHandler.running(false);
             socketClientHandler = null;
@@ -44,8 +56,10 @@ public class ClientChannelProvider{
 
     public SocketClientHandler socketClientHandler() {
         if (socketClientHandler == null) {
-            throw new IllegalStateException("The connection was not established.");
+            throw new IllegalStateException("The connection was not established or already closed.");
         }
         return socketClientHandler;
     }
+
+
 }

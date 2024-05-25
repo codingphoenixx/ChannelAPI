@@ -1,7 +1,9 @@
-package de.codingphoenix.providers.handler;
+package de.codingphoenix.channelapi.providers.handler;
 
-import de.codingphoenix.providers.event.EventHandler;
-import de.codingphoenix.providers.event.channel.ChannelReceiveMessageEvent;
+import de.codingphoenix.channelapi.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.channel.ChannelReceiveMessageEvent;
+import de.codingphoenix.channelapi.providers.event.channel.ClientDisconnectServerConnectionEvent;
+import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -39,7 +41,7 @@ public class SocketClientHandler implements Runnable {
                 buffer.clear();
                 int bytesRead = socketChannel.read(buffer);
                 if (bytesRead == -1) {
-                    System.out.println("Channel closed: " + socketChannel.getRemoteAddress());
+                    eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel));
                     socketChannel.close();
                     break;
                 }
@@ -58,6 +60,7 @@ public class SocketClientHandler implements Runnable {
     public void write(JSONObject jsonObject) throws IOException {
         write(ByteBuffer.wrap(jsonObject.toString().getBytes()));
     }
+
     public void write(String msg) throws IOException {
         write(ByteBuffer.wrap(msg.getBytes()));
     }
