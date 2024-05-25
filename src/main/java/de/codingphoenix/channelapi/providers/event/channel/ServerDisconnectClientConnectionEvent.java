@@ -11,7 +11,10 @@ import java.nio.channels.SocketChannel;
 @Setter
 @Accessors(fluent = true)
 public class ServerDisconnectClientConnectionEvent extends ChannelEvent {
-    public ServerDisconnectClientConnectionEvent(SocketChannel socketChannel) {
+    private final boolean saveDisconnected;
+
+    public ServerDisconnectClientConnectionEvent(SocketChannel socketChannel, boolean saveDisconnected) {
         super(socketChannel);
+        this.saveDisconnected = saveDisconnected;
     }
 }

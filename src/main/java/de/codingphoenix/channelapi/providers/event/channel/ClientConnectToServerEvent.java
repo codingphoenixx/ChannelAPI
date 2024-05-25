@@ -10,9 +10,9 @@ import java.nio.channels.SocketChannel;
 @Getter
 @Setter
 @Accessors(fluent = true)
-public class ServerClientConnectEvent extends ChannelEvent implements Cancelable {
+public class ClientConnectToServerEvent extends ChannelEvent implements Cancelable {
 
-    public ServerClientConnectEvent(SocketChannel socketChannel) {
+    public ClientConnectToServerEvent(SocketChannel socketChannel) {
         super(socketChannel);
     }
 

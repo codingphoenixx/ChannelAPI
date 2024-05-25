@@ -39,9 +39,16 @@ public class SocketClientHandler implements Runnable {
         try {
             while (running) {
                 buffer.clear();
-                int bytesRead = socketChannel.read(buffer);
+                int bytesRead = 0;
+                try {
+                    bytesRead = socketChannel.read(buffer);
+                } catch (IOException e) {
+                    eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, false));
+                    socketChannel.close();
+                    break;
+                }
                 if (bytesRead == -1) {
-                    eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel));
+                    eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, true));
                     socketChannel.close();
                     break;
                 }

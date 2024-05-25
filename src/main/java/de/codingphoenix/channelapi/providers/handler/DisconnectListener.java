@@ -1,24 +1,27 @@
 package de.codingphoenix.channelapi.providers.handler;
 
-import de.codingphoenix.channelapi.providers.event.EventHandler;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Set;
 
 @RequiredArgsConstructor
 public class DisconnectListener {
     private final SocketChannel socketChannel;
-    private final EventHandler eventHandler;
 
 
 
-    public void add(Runnable executionOnDisconnect) throws IOException {
+    public void add(DisconnectAction executionOnDisconnect) throws IOException {
         var selector = Selector.open();
 
         boolean blocking = socketChannel.isBlocking();
@@ -43,11 +46,20 @@ public class DisconnectListener {
                         if (key.isReadable()) {
                             SocketChannel channel = (SocketChannel) key.channel();
                             buffer.clear();
-                            int bytesRead = channel.read(buffer);
+
+
+                            int bytesRead = 0;
+                            try {
+                                bytesRead = socketChannel.read(buffer);
+                            } catch (IOException e) {
+                                executionOnDisconnect.run(false);
+                                socketChannel.close();
+                                break;
+                            }
 
                             if (bytesRead == -1) {
                                 System.out.println("Connection was closed by the other side.");
-                                executionOnDisconnect.run();
+                                executionOnDisconnect.run(true);
                                 return;
                             }
 
@@ -65,5 +77,10 @@ public class DisconnectListener {
 
             }
         }).start();
+    }
+
+
+    public interface DisconnectAction {
+        void run(boolean state);
     }
 }

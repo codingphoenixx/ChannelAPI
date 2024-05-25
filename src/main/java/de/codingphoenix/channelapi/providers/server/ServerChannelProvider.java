@@ -1,7 +1,7 @@
 package de.codingphoenix.channelapi.providers.server;
 
 import de.codingphoenix.channelapi.providers.event.EventHandler;
-import de.codingphoenix.channelapi.providers.event.channel.ServerClientConnectEvent;
+import de.codingphoenix.channelapi.providers.event.channel.ClientConnectToServerEvent;
 import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -42,7 +42,7 @@ public class ServerChannelProvider {
 
             UUID channelIdentifier = UUID.randomUUID();
 
-            ServerClientConnectEvent event = new ServerClientConnectEvent(socketChannel);
+            ClientConnectToServerEvent event = new ClientConnectToServerEvent(socketChannel);
             eventHandler.triggerEvent(event);
 
             if (event.canceled()) {

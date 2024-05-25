@@ -25,7 +25,7 @@ public class ClientChannelProvider {
     public ClientChannelProvider() throws IOException {
         socketChannel = SocketChannel.open();
         eventHandler = new EventHandler();
-        disconnectListener = new DisconnectListener(socketChannel, eventHandler);
+        disconnectListener = new DisconnectListener(socketChannel);
         Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
     }
 
@@ -35,8 +35,9 @@ public class ClientChannelProvider {
 
 
         socketClientHandler.run();
-        disconnectListener.add(() -> {
-            eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel));
+
+        disconnectListener.add((b) -> {
+            eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, b));
             disconnect();
         });
         connected = true;
