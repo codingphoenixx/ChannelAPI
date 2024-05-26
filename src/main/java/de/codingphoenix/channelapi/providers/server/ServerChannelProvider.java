@@ -1,7 +1,9 @@
 package de.codingphoenix.channelapi.providers.server;
 
 import de.codingphoenix.channelapi.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.EventListener;
 import de.codingphoenix.channelapi.providers.event.channel.ClientConnectToServerEvent;
+import de.codingphoenix.channelapi.providers.event.channel.ClientDisconnectServerConnectionEvent;
 import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -29,6 +31,12 @@ public class ServerChannelProvider {
         eventHandler = new EventHandler();
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
+        eventHandler.registerEventListener(new EventListener<ClientDisconnectServerConnectionEvent>() {
+            @Override
+            public void handleEvent(ClientDisconnectServerConnectionEvent event) {
+                providers.remove(event.socketClientHandler().channelIdentifier());
+            }
+        });
     }
 
     public void connect(int port) throws IOException {
@@ -50,7 +58,7 @@ public class ServerChannelProvider {
                 continue;
             }
 
-            SocketClientHandler clientHandler = new SocketClientHandler(channelIdentifier, eventHandler, socketChannel);
+            SocketClientHandler clientHandler = new SocketClientHandler(channelIdentifier, eventHandler, SocketClientHandler.SocketType.SERVER, socketChannel);
             providers.put(channelIdentifier, clientHandler);
             executor.submit(clientHandler);
         }

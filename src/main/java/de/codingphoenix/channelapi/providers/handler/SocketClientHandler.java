@@ -18,18 +18,21 @@ import java.util.UUID;
 @Setter
 @Accessors(fluent = true)
 public class SocketClientHandler implements Runnable {
-    private ByteBuffer buffer;
 
+
+    private ByteBuffer buffer;
     private final UUID channelIdentifier;
     private final SocketChannel socketChannel;
     private final EventHandler eventHandler;
+    private final SocketType socketType;
     private boolean running;
 
 
-    public SocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketChannel socketChannel) {
+    public SocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType,SocketChannel socketChannel) {
         this.channelIdentifier = channelIdentifier;
         this.eventHandler = eventHandler;
         this.socketChannel = socketChannel;
+        this.socketType = socketType;
         buffer = ByteBuffer.allocate(1024);
     }
 
@@ -43,13 +46,20 @@ public class SocketClientHandler implements Runnable {
                 try {
                     bytesRead = socketChannel.read(buffer);
                 } catch (IOException e) {
-                    eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, false));
+                    if(socketType == SocketType.SERVER) {
+                        eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, this, false));
+                    }else {
+                        eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, this, false));
+                    }
                     socketChannel.close();
                     break;
                 }
                 if (bytesRead == -1) {
-                    eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, true));
-                    socketChannel.close();
+                    if(socketType == SocketType.SERVER) {
+                        eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, this, true));
+                    }else {
+                        eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, this, true));
+                    }                    socketChannel.close();
                     break;
                 }
 
@@ -74,5 +84,10 @@ public class SocketClientHandler implements Runnable {
 
     public void write(ByteBuffer msg) throws IOException {
         socketChannel.write(msg);
+    }
+
+
+    public enum SocketType{
+        SERVER, CLIENT;
     }
 }

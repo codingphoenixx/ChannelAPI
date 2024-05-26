@@ -31,13 +31,13 @@ public class ClientChannelProvider {
 
     public void connect(String hostname, int port) throws IOException {
         socketChannel.connect(new InetSocketAddress(hostname, port));
-        socketClientHandler = new SocketClientHandler(new UUID(0, 0), eventHandler, socketChannel);
+        socketClientHandler = new SocketClientHandler(new UUID(0, 0), eventHandler, SocketClientHandler.SocketType.CLIENT, socketChannel);
 
 
         socketClientHandler.run();
 
         disconnectListener.add((b) -> {
-            eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, b));
+            eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, socketClientHandler, b));
             disconnect();
         });
         connected = true;
