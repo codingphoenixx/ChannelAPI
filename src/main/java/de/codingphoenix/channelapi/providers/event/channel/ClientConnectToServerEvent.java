@@ -16,9 +16,15 @@ public class ClientConnectToServerEvent extends ChannelEvent implements Cancelab
         super(socketChannel);
     }
 
-    private boolean cancelled = false;
+
+    private  boolean canceled;
+    @Override
+    public void canceled(boolean canceled) {
+       this.canceled = canceled;
+    }
+
     @Override
     public boolean canceled() {
-        return cancelled;
+        return canceled;
     }
 }

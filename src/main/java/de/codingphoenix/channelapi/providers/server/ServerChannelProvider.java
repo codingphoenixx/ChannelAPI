@@ -31,6 +31,7 @@ public class ServerChannelProvider {
         eventHandler = new EventHandler();
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
+
         eventHandler.registerEventListener(new EventListener<ClientDisconnectServerConnectionEvent>() {
             @Override
             public void handleEvent(ClientDisconnectServerConnectionEvent event) {
