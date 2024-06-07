@@ -27,7 +27,6 @@ public class DisconnectListener {
         boolean blocking = socketChannel.isBlocking();
         socketChannel.configureBlocking(false);
         socketChannel.register(selector, SelectionKey.OP_READ);
-        socketChannel.configureBlocking(blocking);
 
         new Thread(() -> {
 
