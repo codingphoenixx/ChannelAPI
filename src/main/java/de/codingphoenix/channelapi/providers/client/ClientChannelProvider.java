@@ -1,6 +1,7 @@
 package de.codingphoenix.channelapi.providers.client;
 
 import de.codingphoenix.channelapi.providers.event.EventHandler;
+import de.codingphoenix.channelapi.providers.event.channel.ServerConnectEvent;
 import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
 import de.codingphoenix.channelapi.providers.handler.DisconnectListener;
 import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
@@ -30,17 +31,23 @@ public class ClientChannelProvider {
     }
 
     public void connect(String hostname, int port) throws IOException {
-        socketChannel.connect(new InetSocketAddress(hostname, port));
         socketClientHandler = new SocketClientHandler(new UUID(0, 0), eventHandler, SocketClientHandler.SocketType.CLIENT, socketChannel);
+        boolean isConnected = socketChannel.connect(new InetSocketAddress(hostname, port));
 
-
-        socketClientHandler.run();
+        if (!isConnected) {
+            throw new IllegalStateException("The connection could not be established.");
+        }
 
         disconnectListener.add((b) -> {
             eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, socketClientHandler, b));
             disconnect();
         });
+
+        eventHandler.triggerEvent(new ServerConnectEvent(socketChannel, socketClientHandler, hostname, port));
+
+
         connected = true;
+        socketClientHandler.run();
     }
 
     public void disconnect() {
