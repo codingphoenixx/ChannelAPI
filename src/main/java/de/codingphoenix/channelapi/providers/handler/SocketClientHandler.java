@@ -9,7 +9,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.UUID;
@@ -28,7 +30,7 @@ public class SocketClientHandler implements Runnable {
     private boolean running;
 
 
-    public SocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType,SocketChannel socketChannel) {
+    public SocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType, SocketChannel socketChannel) {
         this.channelIdentifier = channelIdentifier;
         this.eventHandler = eventHandler;
         this.socketChannel = socketChannel;
@@ -36,9 +38,14 @@ public class SocketClientHandler implements Runnable {
         buffer = ByteBuffer.allocate(1024);
     }
 
+    private PrintWriter output;
+    private BufferedReader input;
+
     @Override
     public void run() {
         running = true;
+
+
         try {
             while (running) {
                 buffer.clear();
@@ -46,20 +53,21 @@ public class SocketClientHandler implements Runnable {
                 try {
                     bytesRead = socketChannel.read(buffer);
                 } catch (IOException e) {
-                    if(socketType == SocketType.SERVER) {
+                    if (socketType == SocketType.SERVER) {
                         eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, this, false));
-                    }else {
+                    } else {
                         eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, this, false));
                     }
                     socketChannel.close();
                     break;
                 }
                 if (bytesRead == -1) {
-                    if(socketType == SocketType.SERVER) {
+                    if (socketType == SocketType.SERVER) {
                         eventHandler.triggerEvent(new ClientDisconnectServerConnectionEvent(socketChannel, this, true));
-                    }else {
+                    } else {
                         eventHandler.triggerEvent(new ServerDisconnectClientConnectionEvent(socketChannel, this, true));
-                    }                    socketChannel.close();
+                    }
+                    socketChannel.close();
                     break;
                 }
 
@@ -67,6 +75,9 @@ public class SocketClientHandler implements Runnable {
                 byte[] bytes = new byte[buffer.remaining()];
                 buffer.get(bytes);
                 String messageReceived = new String(bytes).trim();
+                if (messageReceived == null || messageReceived.isEmpty())
+                    continue;
+                System.out.println("MSG: " + messageReceived);
                 eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
             }
         } catch (IOException e) {
@@ -74,20 +85,22 @@ public class SocketClientHandler implements Runnable {
         }
     }
 
-    public void write(JSONObject jsonObject) throws IOException {
-        write(ByteBuffer.wrap(jsonObject.toString().getBytes()));
+    public boolean write(JSONObject jsonObject) throws IOException {
+        return write(ByteBuffer.wrap(jsonObject.toString().getBytes()));
     }
 
-    public void write(String msg) throws IOException {
-        write(ByteBuffer.wrap(msg.getBytes()));
+    public boolean write(String msg) throws IOException {
+        return write(ByteBuffer.wrap(msg.getBytes()));
     }
 
-    public void write(ByteBuffer msg) throws IOException {
-        socketChannel.write(msg);
+    public boolean write(ByteBuffer msg) throws IOException {
+        int write = socketChannel.write(msg);
+        System.out.println(write);
+        return write != 0;
     }
 
 
-    public enum SocketType{
+    public enum SocketType {
         SERVER, CLIENT;
     }
 }

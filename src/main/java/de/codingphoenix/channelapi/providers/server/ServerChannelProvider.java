@@ -32,12 +32,7 @@ public class ServerChannelProvider {
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
 
-        eventHandler.registerEventListener(new EventListener<ClientDisconnectServerConnectionEvent>() {
-            @Override
-            public void handleEvent(ClientDisconnectServerConnectionEvent event) {
-                providers.remove(event.socketClientHandler().channelIdentifier());
-            }
-        });
+        eventHandler.registerEventListener(ClientDisconnectServerConnectionEvent.class, event -> providers.remove(event.socketClientHandler().channelIdentifier()));
     }
 
     public void connect(int port) throws IOException {

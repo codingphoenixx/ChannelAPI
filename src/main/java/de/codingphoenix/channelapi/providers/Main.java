@@ -1,9 +1,8 @@
 package de.codingphoenix.channelapi.providers;
 
+import de.codingphoenix.channelapi.providers.client.ClientChannelProvider;
 import de.codingphoenix.channelapi.providers.event.channel.ChannelReceiveMessageEvent;
 import de.codingphoenix.channelapi.providers.server.ServerChannelProvider;
-import de.codingphoenix.channelapi.providers.client.ClientChannelProvider;
-import de.codingphoenix.channelapi.providers.event.EventListener;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -20,21 +19,16 @@ public class Main {
         clientChannelProvider = new ClientChannelProvider();
 
 
-
-        serverChannelProvider.eventHandler().registerEventListener(new EventListener<ChannelReceiveMessageEvent>() {
-            @Override
-            public void handleEvent(ChannelReceiveMessageEvent event) {
-                System.out.println("[SERVER] Server received channel message: " + event.message());
-                try {
-
-                    event.socketClientHandler().write(new JSONObject().put("answer", "ok"));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        serverChannelProvider.eventHandler().registerEventListener(ChannelReceiveMessageEvent.class, event -> {
+            System.out.println("[SERVER] Server received channel message: " + event.message());
+            try {
+                event.socketClientHandler().write(new JSONObject().put("answer", "ok"));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
-        clientChannelProvider.eventHandler().registerEventListener((EventListener<ChannelReceiveMessageEvent>) event -> {
+        clientChannelProvider.eventHandler().registerEventListener(ChannelReceiveMessageEvent.class, event -> {
             System.out.println("[CLIENT] Client received channel message: " + event.message());
         });
 
