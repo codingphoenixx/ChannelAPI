@@ -77,7 +77,6 @@ public class SocketClientHandler implements Runnable {
                 String messageReceived = new String(bytes).trim();
                 if (messageReceived == null || messageReceived.isEmpty())
                     continue;
-                System.out.println("MSG: " + messageReceived);
                 eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
             }
         } catch (IOException e) {
@@ -95,7 +94,6 @@ public class SocketClientHandler implements Runnable {
 
     public boolean write(ByteBuffer msg) throws IOException {
         int write = socketChannel.write(msg);
-        System.out.println(write);
         return write != 0;
     }
 
