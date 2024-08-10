@@ -2,6 +2,7 @@ package de.codingphoenix.channelapi.event.channel;
 
 
 import de.codingphoenix.channelapi.handler.SocketClientHandler;
+import de.codingphoenix.channelapi.providers.server.ServerSocketClientHandler;
 
 import java.nio.channels.SocketChannel;
 
