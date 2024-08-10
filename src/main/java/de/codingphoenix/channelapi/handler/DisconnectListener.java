@@ -1,4 +1,4 @@
-package de.codingphoenix.channelapi.providers.handler;
+package de.codingphoenix.channelapi.handler;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

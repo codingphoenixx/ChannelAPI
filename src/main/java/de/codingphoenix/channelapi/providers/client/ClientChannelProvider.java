@@ -1,11 +1,11 @@
 package de.codingphoenix.channelapi.providers.client;
 
-import de.codingphoenix.channelapi.providers.Security;
-import de.codingphoenix.channelapi.providers.event.EventHandler;
-import de.codingphoenix.channelapi.providers.event.channel.ServerConnectEvent;
-import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
-import de.codingphoenix.channelapi.providers.handler.DisconnectListener;
-import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
+import de.codingphoenix.channelapi.security.Security;
+import de.codingphoenix.channelapi.event.EventHandler;
+import de.codingphoenix.channelapi.event.channel.ServerConnectEvent;
+import de.codingphoenix.channelapi.event.channel.ServerDisconnectClientConnectionEvent;
+import de.codingphoenix.channelapi.handler.DisconnectListener;
+import de.codingphoenix.channelapi.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.json.JSONObject;

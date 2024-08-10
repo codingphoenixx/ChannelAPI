@@ -1,10 +1,10 @@
-package de.codingphoenix.channelapi.providers.handler;
+package de.codingphoenix.channelapi.handler;
 
-import de.codingphoenix.channelapi.providers.Security;
-import de.codingphoenix.channelapi.providers.event.EventHandler;
-import de.codingphoenix.channelapi.providers.event.channel.ChannelReceiveMessageEvent;
-import de.codingphoenix.channelapi.providers.event.channel.ClientDisconnectServerConnectionEvent;
-import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
+import de.codingphoenix.channelapi.security.Security;
+import de.codingphoenix.channelapi.event.EventHandler;
+import de.codingphoenix.channelapi.event.channel.ChannelReceiveMessageEvent;
+import de.codingphoenix.channelapi.event.channel.ClientDisconnectServerConnectionEvent;
+import de.codingphoenix.channelapi.event.channel.ServerDisconnectClientConnectionEvent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
