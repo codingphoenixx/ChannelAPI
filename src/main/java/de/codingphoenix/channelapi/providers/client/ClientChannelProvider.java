@@ -75,7 +75,7 @@ public class ClientChannelProvider {
     }
 
 
-    public ServerSocketClientHandler clientSocketClientHandler() {
+    public ClientSocketClientHandler clientSocketClientHandler() {
         if (clientSocketClientHandler == null) {
             throw new IllegalStateException("The connection was not established or already closed.");
         }
