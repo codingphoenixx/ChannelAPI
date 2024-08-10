@@ -1,5 +1,6 @@
 package de.codingphoenix.channelapi.providers.handler;
 
+import de.codingphoenix.channelapi.providers.Security;
 import de.codingphoenix.channelapi.providers.event.EventHandler;
 import de.codingphoenix.channelapi.providers.event.channel.ChannelReceiveMessageEvent;
 import de.codingphoenix.channelapi.providers.event.channel.ClientDisconnectServerConnectionEvent;
@@ -7,6 +8,7 @@ import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClien
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -28,7 +30,8 @@ public class SocketClientHandler implements Runnable {
     private final EventHandler eventHandler;
     private final SocketType socketType;
     private boolean running;
-
+    private boolean verifiedSocket = false;
+    private String identifier;
 
     public SocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType, SocketChannel socketChannel) {
         this.channelIdentifier = channelIdentifier;
@@ -77,7 +80,47 @@ public class SocketClientHandler implements Runnable {
                 String messageReceived = new String(bytes).trim();
                 if (messageReceived == null || messageReceived.isEmpty())
                     continue;
-                eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
+
+                if (verifiedSocket) {
+                    eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
+                    return;
+                }
+
+                JSONObject jsonObject = null;
+                try {
+                    jsonObject = new JSONObject(messageReceived);
+                } catch (JSONException e) {
+                    System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
+                    return;
+                }
+                if (!jsonObject.has("scope") || !jsonObject.has("data")) {
+                    System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
+                    return;
+                }
+                JSONObject data = null;
+                String identifier = null;
+                String key = null;
+                try {
+                    data = jsonObject.getJSONObject("data");
+                    identifier = data.getString("identifier");
+                    key = data.getString("key");
+                } catch (JSONException e) {
+                    System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
+                    return;
+                }
+                if (!data.has("identifier") || !data.has("key")) {
+                    System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
+                    return;
+                }
+
+                if (key != Security.KEY) {
+                    System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket with WRONG identification. Data: " + messageReceived);
+                    return;
+                }
+                this.identifier = identifier;
+                this.verifiedSocket = true;
+                System.out.println("Successfully verified " + socketChannel.getRemoteAddress() + "!");
+
             }
         } catch (IOException e) {
             e.printStackTrace();

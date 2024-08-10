@@ -1,5 +1,6 @@
 package de.codingphoenix.channelapi.providers.client;
 
+import de.codingphoenix.channelapi.providers.Security;
 import de.codingphoenix.channelapi.providers.event.EventHandler;
 import de.codingphoenix.channelapi.providers.event.channel.ServerConnectEvent;
 import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
@@ -7,6 +8,7 @@ import de.codingphoenix.channelapi.providers.handler.DisconnectListener;
 import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -17,13 +19,15 @@ import java.util.UUID;
 @Getter
 @Accessors(fluent = true)
 public class ClientChannelProvider {
+    private final String identifier;
     private boolean connected = false;
     private final SocketChannel socketChannel;
     private final EventHandler eventHandler;
     private final DisconnectListener disconnectListener;
     private SocketClientHandler socketClientHandler;
 
-    public ClientChannelProvider() throws IOException {
+    public ClientChannelProvider(String identifier) throws IOException {
+        this.identifier = identifier;
         socketChannel = SocketChannel.open();
         eventHandler = new EventHandler();
         disconnectListener = new DisconnectListener(socketChannel);
@@ -48,6 +52,14 @@ public class ClientChannelProvider {
 
         connected = true;
         socketClientHandler.run();
+        socketClientHandler.write(
+                new JSONObject()
+                        .put("scope", "identification")
+                        .put("data", new JSONObject()
+                                .put("identifier", identifier)
+                                .put("key", Security.KEY)
+                        )
+        );
     }
 
     public void disconnect() {
