@@ -1,11 +1,9 @@
 package de.codingphoenix.channelapi.providers.server;
 
+import de.codingphoenix.channelapi.event.channel.*;
 import de.codingphoenix.channelapi.handler.SocketClientHandler;
 import de.codingphoenix.channelapi.security.Security;
 import de.codingphoenix.channelapi.event.EventHandler;
-import de.codingphoenix.channelapi.event.channel.ChannelReceiveMessageEvent;
-import de.codingphoenix.channelapi.event.channel.ClientDisconnectServerConnectionEvent;
-import de.codingphoenix.channelapi.event.channel.ServerDisconnectClientConnectionEvent;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -17,6 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -27,12 +26,13 @@ public class ServerSocketClientHandler extends SocketClientHandler implements Ru
 
     private ByteBuffer buffer;
     private boolean running;
-    private boolean verifiedSocket = false;
+    private boolean verifiedSocket;
     private String identifier;
 
     public ServerSocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType, SocketChannel socketChannel) {
         super(channelIdentifier, eventHandler, socketType, socketChannel);
         buffer = ByteBuffer.allocate(1024);
+        verifiedSocket = false;
     }
 
     private PrintWriter output;
@@ -77,7 +77,7 @@ public class ServerSocketClientHandler extends SocketClientHandler implements Ru
 
                 if (verifiedSocket) {
                     eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
-                    return;
+                    continue;
                 }
 
                 JSONObject jsonObject = null;
@@ -85,11 +85,11 @@ public class ServerSocketClientHandler extends SocketClientHandler implements Ru
                     jsonObject = new JSONObject(messageReceived);
                 } catch (JSONException e) {
                     System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
-                    return;
+                    continue;
                 }
                 if (!jsonObject.has("scope") || !jsonObject.has("data")) {
                     System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
-                    return;
+                    continue;
                 }
                 JSONObject data = null;
                 String identifier = null;
@@ -100,21 +100,20 @@ public class ServerSocketClientHandler extends SocketClientHandler implements Ru
                     key = data.getString("key");
                 } catch (JSONException e) {
                     System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
-                    return;
+                    continue;
                 }
                 if (!data.has("identifier") || !data.has("key")) {
                     System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket without identification. Data: " + messageReceived);
-                    return;
+                    continue;
                 }
-
-                if (key != Security.KEY) {
+                if (!Objects.equals(key, Security.KEY)) {
                     System.out.println("Received message from " + socketChannel.getRemoteAddress() + " in an unverified socket with WRONG identification. Data: " + messageReceived);
-                    return;
+                    continue;
                 }
                 this.identifier = identifier;
                 this.verifiedSocket = true;
                 System.out.println("Successfully verified " + socketChannel.getRemoteAddress() + "!");
-
+                eventHandler.triggerEvent(new ClientVerificationEvent(socketChannel));
             }
         } catch (IOException e) {
             e.printStackTrace();

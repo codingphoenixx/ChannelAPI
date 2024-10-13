@@ -52,7 +52,6 @@ public class ClientChannelProvider {
 
 
         connected = true;
-        clientSocketClientHandler.run();
         clientSocketClientHandler.write(
                 new JSONObject()
                         .put("scope", "identification")
@@ -61,6 +60,8 @@ public class ClientChannelProvider {
                                 .put("key", Security.KEY)
                         )
         );
+        clientSocketClientHandler.run();
+
     }
 
     public void disconnect() {

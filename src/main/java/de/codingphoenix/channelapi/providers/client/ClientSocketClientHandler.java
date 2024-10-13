@@ -5,11 +5,9 @@ import de.codingphoenix.channelapi.event.channel.ChannelReceiveMessageEvent;
 import de.codingphoenix.channelapi.event.channel.ClientDisconnectServerConnectionEvent;
 import de.codingphoenix.channelapi.event.channel.ServerDisconnectClientConnectionEvent;
 import de.codingphoenix.channelapi.handler.SocketClientHandler;
-import de.codingphoenix.channelapi.security.Security;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -22,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Accessors(fluent = true)
-public class ClientSocketClientHandler  extends SocketClientHandler implements Runnable {
+public class ClientSocketClientHandler extends SocketClientHandler implements Runnable {
 
 
     private ByteBuffer buffer;
@@ -80,7 +78,6 @@ public class ClientSocketClientHandler  extends SocketClientHandler implements R
                 if (messageReceived == null || messageReceived.isEmpty())
                     continue;
                 eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
-
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -99,7 +96,6 @@ public class ClientSocketClientHandler  extends SocketClientHandler implements R
         int write = socketChannel.write(msg);
         return write != 0;
     }
-
 
 
 }
