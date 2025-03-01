@@ -1,10 +1,8 @@
 package de.codingphoenix.channelapi.providers.server;
 
-import de.codingphoenix.channelapi.providers.event.EventHandler;
-import de.codingphoenix.channelapi.providers.event.EventListener;
-import de.codingphoenix.channelapi.providers.event.channel.ClientConnectToServerEvent;
-import de.codingphoenix.channelapi.providers.event.channel.ClientDisconnectServerConnectionEvent;
-import de.codingphoenix.channelapi.providers.handler.SocketClientHandler;
+import de.codingphoenix.channelapi.event.EventHandler;
+import de.codingphoenix.channelapi.event.channel.ClientConnectToServerEvent;
+import de.codingphoenix.channelapi.event.channel.ClientDisconnectServerConnectionEvent;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 
@@ -24,7 +22,7 @@ public class ServerChannelProvider {
     private final EventHandler eventHandler;
     private boolean connected = false;
 
-    private final HashMap<UUID, SocketClientHandler> providers = new HashMap<>();
+    private final HashMap<UUID, ServerSocketClientHandler> providers = new HashMap<>();
 
     public ServerChannelProvider() throws IOException {
         serverSocketChannel = ServerSocketChannel.open();
@@ -32,7 +30,7 @@ public class ServerChannelProvider {
 
         Runtime.getRuntime().addShutdownHook(new Thread(this::disconnect));
 
-        eventHandler.registerEventListener(ClientDisconnectServerConnectionEvent.class, event -> providers.remove(event.socketClientHandler().channelIdentifier()));
+        eventHandler.registerEventListener(ClientDisconnectServerConnectionEvent.class, event -> providers.remove(event.serverSocketClientHandler().channelIdentifier()));
     }
 
     public void connect(int port) throws IOException {
@@ -54,7 +52,7 @@ public class ServerChannelProvider {
                 continue;
             }
 
-            SocketClientHandler clientHandler = new SocketClientHandler(channelIdentifier, eventHandler, SocketClientHandler.SocketType.SERVER, socketChannel);
+            ServerSocketClientHandler clientHandler = new ServerSocketClientHandler(channelIdentifier, eventHandler, ServerSocketClientHandler.SocketType.SERVER, socketChannel);
             providers.put(channelIdentifier, clientHandler);
             executor.submit(clientHandler);
         }
@@ -63,7 +61,7 @@ public class ServerChannelProvider {
     public void disconnect() {
         try {
             connected = false;
-            for (SocketClientHandler provider : providers.values()) {
+            for (ServerSocketClientHandler provider : providers.values()) {
                 provider.socketChannel().close();
             }
 

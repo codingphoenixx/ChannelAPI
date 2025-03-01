@@ -1,9 +1,10 @@
-package de.codingphoenix.channelapi.providers.handler;
+package de.codingphoenix.channelapi.providers.client;
 
-import de.codingphoenix.channelapi.providers.event.EventHandler;
-import de.codingphoenix.channelapi.providers.event.channel.ChannelReceiveMessageEvent;
-import de.codingphoenix.channelapi.providers.event.channel.ClientDisconnectServerConnectionEvent;
-import de.codingphoenix.channelapi.providers.event.channel.ServerDisconnectClientConnectionEvent;
+import de.codingphoenix.channelapi.event.EventHandler;
+import de.codingphoenix.channelapi.event.channel.ChannelReceiveMessageEvent;
+import de.codingphoenix.channelapi.event.channel.ClientDisconnectServerConnectionEvent;
+import de.codingphoenix.channelapi.event.channel.ServerDisconnectClientConnectionEvent;
+import de.codingphoenix.channelapi.handler.SocketClientHandler;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Accessors(fluent = true)
-public class SocketClientHandler implements Runnable {
+public class ClientSocketClientHandler extends SocketClientHandler implements Runnable {
 
 
     private ByteBuffer buffer;
@@ -29,8 +30,8 @@ public class SocketClientHandler implements Runnable {
     private final SocketType socketType;
     private boolean running;
 
-
-    public SocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType, SocketChannel socketChannel) {
+    public ClientSocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType, SocketChannel socketChannel) {
+        super(channelIdentifier, eventHandler, socketType, socketChannel);
         this.channelIdentifier = channelIdentifier;
         this.eventHandler = eventHandler;
         this.socketChannel = socketChannel;
@@ -44,7 +45,6 @@ public class SocketClientHandler implements Runnable {
     @Override
     public void run() {
         running = true;
-
 
         try {
             while (running) {
@@ -77,7 +77,6 @@ public class SocketClientHandler implements Runnable {
                 String messageReceived = new String(bytes).trim();
                 if (messageReceived == null || messageReceived.isEmpty())
                     continue;
-                System.out.println("MSG: " + messageReceived);
                 eventHandler.triggerEvent(new ChannelReceiveMessageEvent(this, messageReceived));
             }
         } catch (IOException e) {
@@ -95,12 +94,8 @@ public class SocketClientHandler implements Runnable {
 
     public boolean write(ByteBuffer msg) throws IOException {
         int write = socketChannel.write(msg);
-        System.out.println(write);
         return write != 0;
     }
 
 
-    public enum SocketType {
-        SERVER, CLIENT;
-    }
 }

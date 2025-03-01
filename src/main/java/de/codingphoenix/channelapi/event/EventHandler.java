@@ -1,4 +1,4 @@
-package de.codingphoenix.channelapi.providers.event;
+package de.codingphoenix.channelapi.event;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -43,5 +43,3 @@ public class EventHandler {
 
 
 }
-
-

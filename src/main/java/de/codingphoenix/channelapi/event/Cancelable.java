@@ -1,4 +1,4 @@
-package de.codingphoenix.channelapi.providers.event;
+package de.codingphoenix.channelapi.event;
 
 public interface Cancelable {
 

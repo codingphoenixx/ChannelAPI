@@ -1,6 +1,6 @@
-package de.codingphoenix.channelapi.providers.event.channel;
+package de.codingphoenix.channelapi.event.channel;
 
-import de.codingphoenix.channelapi.providers.event.Cancelable;
+import de.codingphoenix.channelapi.event.Cancelable;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
