@@ -36,7 +36,7 @@ public class ClientSocketClientHandler extends SocketClientHandler implements Ru
         this.eventHandler = eventHandler;
         this.socketChannel = socketChannel;
         this.socketType = socketType;
-        buffer = ByteBuffer.allocate(1024);
+        buffer = ByteBuffer.allocate(32768);
     }
 
     private PrintWriter output;

@@ -31,7 +31,7 @@ public class ServerSocketClientHandler extends SocketClientHandler implements Ru
 
     public ServerSocketClientHandler(UUID channelIdentifier, EventHandler eventHandler, SocketType socketType, SocketChannel socketChannel) {
         super(channelIdentifier, eventHandler, socketType, socketChannel);
-        buffer = ByteBuffer.allocate(1024);
+        buffer = ByteBuffer.allocate(32768);
         verifiedSocket = false;
     }
 
