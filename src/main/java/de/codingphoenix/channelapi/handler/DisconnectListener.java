@@ -64,7 +64,6 @@ public class DisconnectListener {
 
                             buffer.flip();
                             while (buffer.hasRemaining()) {
-                                System.out.print("DEBUG: " + (char) buffer.get());
                             }
                         }
 
