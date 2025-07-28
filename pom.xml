@@ -16,9 +16,9 @@
 
     <distributionManagement>
         <repository>
-            <id>cophrepository-private</id>
-            <name>cophrepositoryPrivate</name>
-            <url>https://repo.coph.dev/private</url>
+            <id>cophrepository-releases</id>
+            <name>cophrepositoryReleases</name>
+            <url>https://repo.coph.dev/releases</url>
         </repository>
     </distributionManagement>
 
